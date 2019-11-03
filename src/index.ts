@@ -184,12 +184,12 @@ namespace Dictionary {
     const quality = has('5A')
       ? 'Augmented'
       : has('3M')
-      ? 'Major'
-      : has('5d')
-      ? 'Diminished'
-      : has('3m')
-      ? 'Minor'
-      : 'Other';
+        ? 'Major'
+        : has('5d')
+          ? 'Diminished'
+          : has('3m')
+            ? 'Minor'
+            : 'Other';
     return { ...set, name, quality, intervals, aliases };
   }
 
@@ -256,7 +256,7 @@ export function Chord(src: ChordInit): Chord {
       return Theory.NoChord;
     }
 
-    const chroma = rotate(-tonic.chroma, st.chroma.split('')).join('');
+    const chroma = tonic.chroma ? rotate(-tonic.chroma, st.chroma.split('')).join('') : st.chroma;
     const chType = { ...st, chroma };
 
     const type = st.name;
