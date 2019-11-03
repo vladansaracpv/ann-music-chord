@@ -15,8 +15,7 @@ import {
 const { either } = BaseBoolean;
 const { tokenize: tokenizeNote } = BaseStrings;
 const { isArray, isString } = BaseTypings;
-const { rotate } = BaseArray
-
+const { rotate } = BaseArray;
 
 import CHORD_LIST from './data';
 
@@ -24,9 +23,9 @@ export type ChordQuality = 'Major' | 'Minor' | 'Augmented' | 'Diminished' | 'Unk
 
 /**
  * Chord name (may include tonic note)
- * 
+ *
  * @example
- * 
+ *
  * const cminor: ChordTypeName = 'Cm'
  * const minor: ChordTypeName = 'm'
  */
@@ -36,7 +35,7 @@ export type ChordTypeSetNum = PcsetNum;
 
 /**
  * ChordTypeProp Can be given either as ChordTypeName | PcsetChroma | PcsetNum
- * 
+ *
  * @example
  * const chord: ChordTypeProp = 'C major'
  * const chordChroma: ChordTypeProp = '100100010000'
@@ -46,13 +45,13 @@ export type ChordTypeProp = ChordTypeName | ChordTypeChroma | ChordTypeSetNum;
 
 /**
  * ChordNameTokens represent tuple of [NoteName, ChordTypeProp]
- * 
- * @example 
+ *
+ * @example
  * const tokens: ChordNameTokens = ['C', 'minor']
  */
 export type ChordNameTokens = [NoteName, ChordTypeProp];
 
-export type ChordInit = ChordTypeName | ChordNameTokens
+export type ChordInit = ChordTypeName | ChordNameTokens;
 /**
  * aliases
  * chroma,
@@ -120,7 +119,7 @@ namespace Theory {
 }
 
 namespace Transpose {
-  const transpose = b => b
+  const transpose = b => b;
 }
 
 namespace SetMethods {
@@ -133,9 +132,7 @@ namespace SetMethods {
   export function chordSubset(chordName: ChordTypeName): string[] {
     const s = Chord(chordName);
     const isSubset = isSubsetOf(s.chroma);
-    return CHORD.types
-      .filter(chord => isSubset(chord.chroma))
-      .map(chord => s.tonic + chord.aliases[0]);
+    return CHORD.types.filter(chord => isSubset(chord.chroma)).map(chord => s.tonic + chord.aliases[0]);
   }
 
   /**
@@ -150,9 +147,7 @@ namespace SetMethods {
   export function chordSuperset(chordName: ChordTypeName): string[] {
     const s = Chord(chordName);
     const isSuperset = isSupersetOf(s.chroma);
-    return CHORD.types
-      .filter(chord => isSuperset(chord.chroma))
-      .map(chord => s.tonic + chord.aliases[0]);
+    return CHORD.types.filter(chord => isSuperset(chord.chroma)).map(chord => s.tonic + chord.aliases[0]);
   }
 }
 
@@ -164,7 +159,9 @@ namespace Static {
 }
 
 namespace Dictionary {
-  export const TYPES: ChordType[] = CHORD_LIST.map(toChordType).sort((a: ChordType, b: ChordType) => a.setNum - b.setNum) as ChordType[];
+  export const TYPES: ChordType[] = CHORD_LIST.map(toChordType).sort(
+    (a: ChordType, b: ChordType) => a.setNum - b.setNum,
+  ) as ChordType[];
   export const CHORDS: ChordTypes = toChords(TYPES);
 
   export function toChords(types: ChordType[]) {
@@ -187,12 +184,12 @@ namespace Dictionary {
     const quality = has('5A')
       ? 'Augmented'
       : has('3M')
-        ? 'Major'
-        : has('5d')
-          ? 'Diminished'
-          : has('3m')
-            ? 'Minor'
-            : 'Other';
+      ? 'Major'
+      : has('5d')
+      ? 'Diminished'
+      : has('3m')
+      ? 'Minor'
+      : 'Other';
     return { ...set, name, quality, intervals, aliases };
   }
 
