@@ -1,4 +1,4 @@
-import { BaseBoolean, BaseStrings, BaseTypings, BaseArray } from 'ann-music-base';
+import { BaseBoolean, BaseStrings, BaseTypings, BaseArray, BaseRelations } from 'ann-music-base';
 import { NoteName, Note, NoteProps } from 'ann-music-note';
 import { Interval, IntervalName } from 'ann-music-interval';
 import { PcChroma, PcNum, PcProperties, PC, PitchClass } from 'ann-music-pc';
@@ -8,6 +8,7 @@ const { either } = BaseBoolean;
 const { tokenize: tokenizeNote } = BaseStrings;
 const { isArray, isString } = BaseTypings;
 const { rotate } = BaseArray;
+const { eq } = BaseRelations;
 const { isSubsetOf, isSupersetOf, transpose: transposeNote } = PitchClass.Methods;
 const EmptySet = PitchClass.Empty;
 
@@ -15,11 +16,7 @@ export type ChordQuality = 'Major' | 'Minor' | 'Augmented' | 'Diminished' | 'Unk
 
 export type ChordTypeName = string;
 
-export type ChordTypeChroma = PcChroma;
-
-export type ChordTypeSetNum = PcNum;
-
-export type ChordTypeProp = ChordTypeName | ChordTypeChroma | ChordTypeSetNum;
+export type ChordTypeProp = ChordTypeName | PcChroma | PcNum;
 
 export type ChordNameTokens = [NoteName, ChordTypeProp];
 
@@ -33,7 +30,6 @@ export interface ChordType extends PcProperties {
    * normalized,
    * intervals,
    * length,
-   * empty,
    *
    * * Added by ChordType * *
    * aliases
@@ -53,7 +49,6 @@ export interface Chord extends ChordType {
    * normalized,
    * intervals,
    * length,
-   * empty,
    *
    * * Added by ChordType * *
    * name,
@@ -69,6 +64,7 @@ export interface Chord extends ChordType {
   tonic: string;
   name: string;
   notes: NoteName[];
+  formula: string;
   valid: boolean;
 }
 
@@ -165,7 +161,6 @@ export const CHORD = {
   },
 
   EmptyChord: {
-    empty: true,
     name: '',
     type: '',
     tonic: '',
@@ -221,9 +216,9 @@ export function Chord(src: ChordInit): Chord {
 
     const chordType = (CHORD.chords[ctype] || CHORD.EmptyChordType) as ChordType;
 
-    const { setNum, normalized, intervals, length, empty, type, quality, aliases, chroma: chordChroma } = chordType;
+    const { setNum, normalized, intervals, length, type, quality, aliases, chroma: chordChroma } = chordType;
 
-    if (empty) {
+    if (eq(length, 0)) {
       return CHORD.EmptyChord as Chord;
     }
 
@@ -231,9 +226,11 @@ export function Chord(src: ChordInit): Chord {
 
     const tonic = rootNote.letter || '';
 
-    const name = `${tonic}  ${type}`.trimLeft();
+    const name = `${tonic} ${type}`.trimLeft();
 
     const notes: string[] = rootNote.valid ? intervals.map(i => (transposeNote(rootNote.name, i) as NoteProps).pc) : [];
+
+    const formula = intervals.map(ivl => Interval(ivl).semitones).join('-');
 
     const valid = true;
 
@@ -244,7 +241,8 @@ export function Chord(src: ChordInit): Chord {
       normalized,
       intervals,
       length,
-      empty,
+      // ToDo: Remove
+      empty: eq(length, 0),
       // ChordType
       type,
       quality,
@@ -253,6 +251,7 @@ export function Chord(src: ChordInit): Chord {
       tonic,
       name,
       notes,
+      formula,
       valid,
     });
   }
