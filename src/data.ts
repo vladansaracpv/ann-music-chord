@@ -134,5 +134,3 @@ const CHORD_LIST: string[][] = [
 ];
 
 export default CHORD_LIST;
-
-
