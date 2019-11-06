@@ -2,20 +2,20 @@ import { BaseBoolean, BaseStrings, BaseTypings, BaseArray } from 'ann-music-base
 import { NoteName, Note } from 'ann-music-note';
 import { Interval, IntervalName } from 'ann-music-interval';
 import {
-  EmptySet,
-  isSubsetOf,
-  isSupersetOf,
-  PcsetChroma,
-  PcsetNum,
-  PcsetProps,
-  pcset,
-  transpose as transposeNote,
+  PcChroma,
+  PcNum,
+  PcProperties,
+  PC,
+  PitchClass,
 } from 'ann-music-pc';
 
 const { either } = BaseBoolean;
 const { tokenize: tokenizeNote } = BaseStrings;
 const { isArray, isString } = BaseTypings;
 const { rotate } = BaseArray;
+
+const { isSubsetOf, isSupersetOf, transpose: transposeNote } = PitchClass.Methods
+const EmptySet = PitchClass.Empty;
 
 import CHORD_LIST from './data';
 
@@ -30,11 +30,11 @@ export type ChordQuality = 'Major' | 'Minor' | 'Augmented' | 'Diminished' | 'Unk
  * const minor: ChordTypeName = 'm'
  */
 export type ChordTypeName = string;
-export type ChordTypeChroma = PcsetChroma;
-export type ChordTypeSetNum = PcsetNum;
+export type ChordTypeChroma = PcChroma;
+export type ChordTypeSetNum = PcNum;
 
 /**
- * ChordTypeProp Can be given either as ChordTypeName | PcsetChroma | PcsetNum
+ * ChordTypeProp Can be given either as ChordTypeName | PcChroma | PcNum
  *
  * @example
  * const chord: ChordTypeProp = 'C major'
@@ -63,7 +63,7 @@ export type ChordInit = ChordTypeName | ChordNameTokens;
  * quality,
  * setNum,
  */
-export interface ChordType extends PcsetProps {
+export interface ChordType extends PcProperties {
   name: string;
   quality: ChordQuality;
   aliases: string[];
@@ -179,7 +179,7 @@ namespace Dictionary {
   export function toChordType([ivls, name, abbrvs]: string[]): ChordType {
     const has = (interval: IntervalName) => ivls.includes(interval);
     const intervals = ivls.split(' ');
-    const set = pcset(intervals);
+    const set = PC(intervals);
     const aliases = abbrvs.split(' ');
     const quality = has('5A')
       ? 'Augmented'
