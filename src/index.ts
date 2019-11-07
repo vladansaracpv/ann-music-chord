@@ -103,8 +103,8 @@ namespace Dictionary {
 
   export const all: ChordTypes = toChords(types);
 
-  function toChords(types: ChordType[]) {
-    return types.reduce((chords: ChordTypes, chord: ChordType) => {
+  function toChords(chordTypes: ChordType[]) {
+    return chordTypes.reduce((chords: ChordTypes, chord: ChordType) => {
       chords[chord.type] = chord;
       chords[chord.setNum] = chord;
       chords[chord.chroma] = chord;
