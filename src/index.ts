@@ -41,7 +41,7 @@ export interface ChordType extends PcProperties {
   aliases: string[];
 }
 
-export interface Chord extends ChordType {
+export interface ChordProps extends ChordType {
   /**
    * * Added by PcProperties * *
    * setNum,
@@ -51,14 +51,15 @@ export interface Chord extends ChordType {
    * length,
    *
    * * Added by ChordType * *
-   * name,
+   * type,
    * quality,
    * aliases
    *
-   * * Added by Chord * *
+   * * Added by ChordProps * *
    * tonic,
-   * type,
+   * name,
    * notes,
+   * formula
    * valid
    */
   tonic: string;
@@ -78,7 +79,7 @@ namespace Theory {
     aliases: [],
   };
 
-  export const EmptyChord: Chord = {
+  export const EmptyChord: ChordProps = {
     name: '',
     type: '',
     tonic: '',
@@ -97,14 +98,14 @@ namespace Theory {
 }
 
 namespace Dictionary {
-  export const types: ChordType[] = CHORD_LIST.map(toChordType).sort(
+  export const chordTypes: ChordType[] = CHORD_LIST.map(toChordType).sort(
     (a: ChordType, b: ChordType) => a.length - b.length,
   ) as ChordType[];
 
-  export const all: ChordTypes = toChords(types);
+  export const allChords: ChordTypes = toChords(chordTypes);
 
-  function toChords(chordTypes: ChordType[]) {
-    return chordTypes.reduce((chords: ChordTypes, chord: ChordType) => {
+  function toChords(types: ChordType[]) {
+    return types.reduce((chords: ChordTypes, chord: ChordType) => {
       chords[chord.type] = chord;
       chords[chord.setNum] = chord;
       chords[chord.chroma] = chord;
@@ -186,10 +187,10 @@ namespace Static {
    *
    * @example
    */
-  export function subChords(chordName: ChordTypeName): string[] {
+  export function subset(chordName: ChordTypeName): string[] {
     const s = Chord(chordName);
     const isSubset = isSubsetOf(s.chroma);
-    return CHORD.types.filter(chord => isSubset(chord.chroma)).map(chord => s.tonic + chord.aliases[0]);
+    return CHORD.chordTypes.filter(chord => isSubset(chord.chroma)).map(chord => s.tonic + chord.aliases[0]);
   }
 
   /**
@@ -201,10 +202,10 @@ namespace Static {
    * extended("CMaj7")
    * // => [ 'Cmaj#4', 'Cmaj7#9#11', 'Cmaj9', 'CM7add13', 'Cmaj13', 'Cmaj9#11', 'CM13#11', 'CM7b9' ]
    */
-  export function superChords(chordName: ChordTypeName): string[] {
+  export function superset(chordName: ChordTypeName): string[] {
     const s = Chord(chordName);
     const isSuperset = isSupersetOf(s.chroma);
-    return CHORD.types.filter(chord => isSuperset(chord.chroma)).map(chord => s.tonic + chord.aliases[0]);
+    return CHORD.chordTypes.filter(chord => isSuperset(chord.chroma)).map(chord => s.tonic + chord.aliases[0]);
   }
 }
 
@@ -214,21 +215,23 @@ export const CHORD = {
   ...Static,
 };
 
-export function Chord(src: ChordInit): Chord {
-  function fromTokens(ctokens: ChordNameTokens) {
-    const [chordLetter, ctype] = ctokens;
+export function Chord(src: ChordInit): ChordProps {
+  function fromName(chord: ChordTypeName) {
+    const tokens = CHORD.tokenize(chord) as ChordNameTokens;
 
-    const rootNote = Note(chordLetter as NoteName);
+    const [Cletter, Ctype] = tokens;
 
-    const chordType = (CHORD.all[ctype] || CHORD.EmptyChordType) as ChordType;
+    const rootNote = Note(Cletter as NoteName);
+
+    const chordType = CHORD.allChords[Ctype] as ChordType;
+
+    if (!chordType || chordType.length) {
+      return CHORD.EmptyChordType as ChordProps;
+    }
 
     const { setNum, normalized, intervals, length, type, quality, aliases, chroma: chordChroma } = chordType;
 
-    if (eq(length, 0)) {
-      return CHORD.EmptyChord as Chord;
-    }
-
-    const chroma = either(rotate(-rootNote.chroma, chordChroma.split('')).join(''), chordChroma, rootNote.valid);
+    const chroma = rootNote.valid ? rotate(-rootNote.chroma, chordChroma.split('')).join('') : chordChroma;
 
     const tonic = rootNote.letter || '';
 
@@ -237,6 +240,8 @@ export function Chord(src: ChordInit): Chord {
     const notes: string[] = rootNote.valid ? intervals.map(i => (transposeNote(rootNote.name, i) as NoteProps).pc) : [];
 
     const formula = intervals.map(ivl => Interval(ivl).semitones).join('-');
+
+    const empty = eq(length, 0);
 
     const valid = true;
 
@@ -247,13 +252,12 @@ export function Chord(src: ChordInit): Chord {
       normalized,
       intervals,
       length,
-      // ToDo: Remove
-      empty: eq(length, 0),
+      empty,
       // ChordType
       type,
       quality,
       aliases,
-      // Chord
+      // ChordProps
       tonic,
       name,
       notes,
@@ -262,14 +266,7 @@ export function Chord(src: ChordInit): Chord {
     });
   }
 
-  function fromName(name: ChordTypeName) {
-    const tokens = CHORD.tokenize(name) as ChordNameTokens;
-    return fromTokens(tokens);
-  }
-
   if (isString(src)) return fromName(src);
 
-  if (isArray(src)) return fromTokens(src);
-
-  return CHORD.EmptyChord as Chord;
+  return CHORD.EmptyChord as ChordProps;
 }
