@@ -124,12 +124,12 @@ namespace Dictionary {
     const quality = has('5A')
       ? 'Augmented'
       : has('3M')
-      ? 'Major'
-      : has('5d')
-      ? 'Diminished'
-      : has('3m')
-      ? 'Minor'
-      : 'Other';
+        ? 'Major'
+        : has('5d')
+          ? 'Diminished'
+          : has('3m')
+            ? 'Minor'
+            : 'Other';
     return { ...set, type, quality, intervals, aliases };
   }
 }
@@ -218,14 +218,13 @@ export const CHORD = {
 export function Chord(src: ChordInit): ChordProps {
   function fromName(chord: ChordTypeName) {
     const tokens = CHORD.tokenize(chord) as ChordNameTokens;
-
     const [Cletter, Ctype] = tokens;
 
     const rootNote = Note(Cletter as NoteName);
 
     const chordType = CHORD.allChords[Ctype] as ChordType;
 
-    if (!chordType || chordType.length) {
+    if (!chordType || !chordType.length) {
       return CHORD.EmptyChordType as ChordProps;
     }
 
