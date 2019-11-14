@@ -124,12 +124,12 @@ namespace Dictionary {
     const quality = has('5A')
       ? 'Augmented'
       : has('3M')
-        ? 'Major'
-        : has('5d')
-          ? 'Diminished'
-          : has('3m')
-            ? 'Minor'
-            : 'Other';
+      ? 'Major'
+      : has('5d')
+      ? 'Diminished'
+      : has('3m')
+      ? 'Minor'
+      : 'Other';
     return { ...set, type, quality, intervals, aliases };
   }
 }
