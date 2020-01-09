@@ -44,6 +44,6 @@
   },
   "dependencies": {
     "ann-music-note": "^1.0.13",
-    "ann-music-pc": "^1.0.8"
+    "ann-music-pc": "^1.0.9"
   }
 }
