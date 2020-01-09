@@ -40,4 +40,4 @@ function toChords(types: ChordType[]) {
 export const CHORD_TYPES: ChordType[] = CHORD_LIST.map(toChordType);
 export const CHORDS: ChordTypes = toChords(CHORD_TYPES);
 
-export const chordTypesList = CHORD_TYPES.map(chord => chord.type);
+export const chordTypesList = CHORD_TYPES.map(chord => chord.aliases[0]);
